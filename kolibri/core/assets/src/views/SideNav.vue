@@ -1,5 +1,4 @@
 <template>
-
   <div ref="sideNav" class="side-nav-wrapper" tabindex="0" @keyup.esc="toggleNav">
     <transition name="side-nav">
       <div
@@ -25,7 +24,7 @@
               :src="themeConfig.sideNav.topLogo.src"
               :alt="themeConfig.sideNav.topLogo.alt"
               :style="themeConfig.sideNav.topLogo.style"
-            >
+            />
             <CoreMenu
               ref="coreMenu"
               role="navigation"
@@ -54,11 +53,11 @@
                   :src="themeConfig.sideNav.brandedFooter.logo.src"
                   :alt="themeConfig.sideNav.brandedFooter.logo.alt"
                   :style="themeConfig.sideNav.brandedFooter.logo.style"
-                >
+                />
                 <div
                   v-if="
                     themeConfig.sideNav.brandedFooter.paragraphArray &&
-                      themeConfig.sideNav.brandedFooter.paragraphArray.length
+                    themeConfig.sideNav.brandedFooter.paragraphArray.length
                   "
                   class="side-nav-scrollable-area-footer-info"
                 >
@@ -116,278 +115,273 @@
       @submit="privacyModalVisible = false"
     />
   </div>
-
 </template>
 
 
 <script>
+import { mapGetters } from 'vuex';
+import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
+import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
+import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
+import navComponents from 'kolibri.utils.navComponents';
+import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
+import themeConfig from 'kolibri.themeConfig';
+import Backdrop from 'kolibri.coreVue.components.Backdrop';
+import navComponentsMixin from '../mixins/nav-components';
+import logout from './LogoutSideNavEntry';
+import SideNavDivider from './SideNavDivider';
+import FocusTrap from './FocusTrap.vue';
+import plugin_data from 'plugin_data';
 
-  import { mapGetters } from 'vuex';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
-  import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
-  import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
-  import navComponents from 'kolibri.utils.navComponents';
-  import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
-  import themeConfig from 'kolibri.themeConfig';
-  import Backdrop from 'kolibri.coreVue.components.Backdrop';
-  import navComponentsMixin from '../mixins/nav-components';
-  import logout from './LogoutSideNavEntry';
-  import SideNavDivider from './SideNavDivider';
-  import FocusTrap from './FocusTrap.vue';
-  import plugin_data from 'plugin_data';
+// Explicit ordered list of roles for nav item sorting
+const navComponentRoleOrder = [
+  UserKinds.ANONYMOUS,
+  UserKinds.LEARNER,
+  UserKinds.COACH,
+  UserKinds.ADMIN,
+  UserKinds.CAN_MANAGE_CONTENT,
+  UserKinds.SUPERUSER,
+];
 
-  // Explicit ordered list of roles for nav item sorting
-  const navComponentRoleOrder = [
-    UserKinds.ANONYMOUS,
-    UserKinds.LEARNER,
-    UserKinds.COACH,
-    UserKinds.ADMIN,
-    UserKinds.CAN_MANAGE_CONTENT,
-    UserKinds.SUPERUSER,
-  ];
-
-  export default {
-    name: 'SideNav',
-    components: {
-      Backdrop,
-      CoreMenu,
-      CoreLogo,
-      LearnOnlyDeviceNotice,
-      SideNavDivider,
-      PrivacyInfoModal,
-      FocusTrap,
+export default {
+  name: 'SideNav',
+  components: {
+    Backdrop,
+    CoreMenu,
+    CoreLogo,
+    LearnOnlyDeviceNotice,
+    SideNavDivider,
+    PrivacyInfoModal,
+    FocusTrap,
+  },
+  mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
+  setup() {
+    return { themeConfig };
+  },
+  props: {
+    navShown: {
+      type: Boolean,
+      required: true,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
-    setup() {
-      return { themeConfig };
+  },
+  data() {
+    return {
+      // __copyrightYear is injected by Webpack DefinePlugin
+      copyrightYear: __copyrightYear,
+      privacyModalVisible: false,
+      isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
+    };
+  },
+  computed: {
+    ...mapGetters(['isAdmin', 'isCoach']),
+    width() {
+      return this.topBarHeight * 4;
     },
-    props: {
-      navShown: {
-        type: Boolean,
-        required: true,
-      },
+    showSoudNotice() {
+      return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
     },
-    data() {
-      return {
-        // __copyrightYear is injected by Webpack DefinePlugin
-        copyrightYear: __copyrightYear,
-        privacyModalVisible: false,
-        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
-      };
+    menuOptions() {
+      const topComponents = navComponents
+        .filter((component) => component.section !== NavComponentSections.ACCOUNT)
+        .sort(this.compareMenuComponents);
+      const accountComponents = navComponents
+        .filter((component) => component.section === NavComponentSections.ACCOUNT)
+        .sort(this.compareMenuComponents);
+      return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
+        this.filterByRole
+      );
     },
-    computed: {
-      ...mapGetters(['isAdmin', 'isCoach']),
-      width() {
-        return this.topBarHeight * 4;
-      },
-      showSoudNotice() {
-        return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
-      },
-      menuOptions() {
-        const topComponents = navComponents
-          .filter(component => component.section !== NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents);
-        const accountComponents = navComponents
-          .filter(component => component.section === NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents);
-        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
-          this.filterByRole
-        );
-      },
-      sideNavTitleText() {
-        if (this.themeConfig.sideNav.title) {
-          return this.themeConfig.sideNav.title;
-        }
-        return this.coreString('kolibriLabel');
-      },
+    sideNavTitleText() {
+      if (this.themeConfig.sideNav.title) {
+        return this.themeConfig.sideNav.title;
+      }
+      return this.coreString('kolibriLabel');
     },
-    watch: {
-      navShown(isShown) {
-        this.$nextTick(() => {
-          if (isShown) {
-            this.focusFirstEl();
-          }
-        });
-      },
-    },
-    mounted() {
+  },
+  watch: {
+    navShown(isShown) {
       this.$nextTick(() => {
-        this.$emit('shouldFocusFirstEl');
+        if (isShown) {
+          this.focusFirstEl();
+        }
       });
     },
-    methods: {
-      toggleNav() {
-        this.$emit('toggleSideNav');
-      },
-      // handleClickPrivacyLink() {
-      //   this.privacyModalVisible = true;
-      // },
-      compareMenuComponents(navComponentA, navComponentB) {
-        // Compare menu items to allow sorting by the following priority:
-        // Sort by role
-        // Nav items with no roles will be placed first
-        // as index will be -1
-        if (navComponentA.role !== navComponentB.role) {
-          return (
-            navComponentRoleOrder.indexOf(navComponentA.role) -
-            navComponentRoleOrder.indexOf(navComponentB.role)
-          );
-        }
-        // Next sort by priority
-        if (navComponentA.priority !== navComponentB.priority) {
-          return navComponentA.priority - navComponentB.priority;
-        }
-        // Still no difference?
-        // There is no difference!
-        return 0;
-      },
-      /**
-       * @public
-       * Focuses on correct first element for FocusTrap.
-       */
-      focusFirstEl() {
-        this.$nextTick(() => {
-          this.$refs.coreMenu.focusFirstEl();
-        });
-      },
-      focusLastEl() {
-        this.$refs.closeButton.$el.focus();
-      },
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.$emit('shouldFocusFirstEl');
+    });
+  },
+  methods: {
+    toggleNav() {
+      this.$emit('toggleSideNav');
     },
-    $trs: {
-      navigationLabel: {
-        message: 'Main user navigation',
-        context:
-          'Refers to the main side navigation bar. The message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.',
-      },
-      closeNav: {
-        message: 'Close navigation',
-        context:
-          "This message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.\n\nIn this case the screen-reader will announce the message when user navigates to the 'X' button with the keyboard, to indicate that it allows them to close the sidebar navigation menu. (Note that the sidebar needs to have been previously opened)",
-      },
+    // handleClickPrivacyLink() {
+    //   this.privacyModalVisible = true;
+    // },
+    compareMenuComponents(navComponentA, navComponentB) {
+      // Compare menu items to allow sorting by the following priority:
+      // Sort by role
+      // Nav items with no roles will be placed first
+      // as index will be -1
+      if (navComponentA.role !== navComponentB.role) {
+        return (
+          navComponentRoleOrder.indexOf(navComponentA.role) -
+          navComponentRoleOrder.indexOf(navComponentB.role)
+        );
+      }
+      // Next sort by priority
+      if (navComponentA.priority !== navComponentB.priority) {
+        return navComponentA.priority - navComponentB.priority;
+      }
+      // Still no difference?
+      // There is no difference!
+      return 0;
     },
-  };
-
+    /**
+     * @public
+     * Focuses on correct first element for FocusTrap.
+     */
+    focusFirstEl() {
+      this.$nextTick(() => {
+        this.$refs.coreMenu.focusFirstEl();
+      });
+    },
+    focusLastEl() {
+      this.$refs.closeButton.$el.focus();
+    },
+  },
+  $trs: {
+    navigationLabel: {
+      message: 'Main user navigation',
+      context:
+        'Refers to the main side navigation bar. The message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.',
+    },
+    closeNav: {
+      message: 'Close navigation',
+      context:
+        "This message is providing additional context to the screen-reader users, but is not visible in the Kolibri UI.\n\nIn this case the screen-reader will announce the message when user navigates to the 'X' button with the keyboard, to indicate that it allows them to close the sidebar navigation menu. (Note that the sidebar needs to have been previously opened)",
+    },
+  },
+};
 </script>
 
 
 <style lang="scss" scoped>
+@import '~kolibri-design-system/lib/styles/definitions';
 
-  @import '~kolibri-design-system/lib/styles/definitions';
+// Matches the Keen-UI/UiToolbar box-shadow property
+%ui-toolbar-box-shadow {
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+}
 
-  // Matches the Keen-UI/UiToolbar box-shadow property
-  %ui-toolbar-box-shadow {
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+.side-nav-wrapper {
+  overflow-x: hidden;
+}
+
+.side-nav {
+  @extend %dropshadow-16dp;
+
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 16;
+}
+
+.side-nav-enter {
+  transform: translate3d(-100%, 0, 0);
+}
+
+.side-nav-enter-active {
+  transition: all 0.2s ease-in-out;
+}
+
+.side-nav-enter-to {
+  transform: translate3d(0, 0, 0);
+}
+
+.side-nav-leave {
+  transform: translate3d(0, 0, 0);
+}
+
+.side-nav-leave-active {
+  transition: all 0.2s ease-in-out;
+}
+
+.side-nav-leave-to {
+  transform: translate3d(-100%, 0, 0);
+}
+
+.side-nav-header {
+  @extend %ui-toolbar-box-shadow;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 17;
+  font-size: 14px;
+}
+
+.side-nav-header-icon {
+  margin-left: 5px; /* align with a toolbar icon below */
+}
+
+.side-nav-header-name {
+  margin-left: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+.side-nav-scrollable-area {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding-top: 4px;
+  overflow: auto;
+}
+
+.side-nav-scrollable-area-footer {
+  padding: 16px;
+}
+
+.side-nav-scrollable-area-footer-logo {
+  max-width: 100%;
+  height: 77px;
+}
+
+.side-nav-scrollable-area-footer-info {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 16px;
+
+  p {
+    margin: 0;
   }
+}
 
-  .side-nav-wrapper {
-    overflow-x: hidden;
-  }
+.side-nav-backdrop {
+  z-index: 15;
+}
 
-  .side-nav {
-    @extend %dropshadow-16dp;
+/* keen menu */
+/deep/ .ui-menu {
+  max-height: none;
+  padding: 0;
+  border: 0;
+}
 
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 16;
-  }
+.privacy-link {
+  text-align: left;
+}
 
-  .side-nav-enter {
-    transform: translate3d(-100%, 0, 0);
-  }
-
-  .side-nav-enter-active {
-    transition: all 0.2s ease-in-out;
-  }
-
-  .side-nav-enter-to {
-    transform: translate3d(0, 0, 0);
-  }
-
-  .side-nav-leave {
-    transform: translate3d(0, 0, 0);
-  }
-
-  .side-nav-leave-active {
-    transition: all 0.2s ease-in-out;
-  }
-
-  .side-nav-leave-to {
-    transform: translate3d(-100%, 0, 0);
-  }
-
-  .side-nav-header {
-    @extend %ui-toolbar-box-shadow;
-
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 17;
-    font-size: 14px;
-  }
-
-  .side-nav-header-icon {
-    margin-left: 5px; /* align with a toolbar icon below */
-  }
-
-  .side-nav-header-name {
-    margin-left: 8px;
-    font-size: 18px;
-    font-weight: bold;
-    vertical-align: middle;
-  }
-
-  .side-nav-scrollable-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    padding-top: 4px;
-    overflow: auto;
-  }
-
-  .side-nav-scrollable-area-footer {
-    padding: 16px;
-  }
-
-  .side-nav-scrollable-area-footer-logo {
-    max-width: 100%;
-    height: 77px;
-  }
-
-  .side-nav-scrollable-area-footer-info {
-    margin-top: 8px;
-    font-size: 12px;
-    line-height: 16px;
-
-    p {
-      margin: 0;
-    }
-  }
-
-  .side-nav-backdrop {
-    z-index: 15;
-  }
-
-  /* keen menu */
-  /deep/ .ui-menu {
-    max-height: none;
-    padding: 0;
-    border: 0;
-  }
-
-  .privacy-link {
-    text-align: left;
-  }
-
-  .logo {
-    max-width: 100%;
-    height: auto;
-  }
-
+.logo {
+  max-width: 100%;
+  height: auto;
+}
 </style>

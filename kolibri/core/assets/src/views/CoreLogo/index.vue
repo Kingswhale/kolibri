@@ -7,7 +7,7 @@
 
 <script type="text/javascript">
 
-  import logo from './kolibri-logooo.png';
+  import logo from './kolibri-logo.png';
 
   export default {
     name: 'CoreLogo',
