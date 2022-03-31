@@ -36,7 +36,7 @@
   "AuthMessage.goBackToHomeAction": "Go to home page",
   "AuthMessage.learner": "You must be signed in as a learner to view this page",
   "AuthMessage.registeredUser": "You must be signed in to view this page",
-  "AuthMessage.signInToKolibriAction": "Sign in to Kolibri",
+  "AuthMessage.signInToKolibriAction": "Sign in to E-Library",
   "AuthMessage.superuser": "You must have super admin permissions to view this page",
   "BirthYearSelect.birthYearTooltip": "Provide an estimate if you are unsure.",
   "BirthYearSelect.birthyearAriaLabel": "About providing your birth year.",

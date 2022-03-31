@@ -953,7 +953,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   invalidCredentialsError: {
     message: 'Incorrect username or password',
     context:
-      "Error message a user sees if they've used the wrong username or password when they sign in to Kolibri.",
+      "Error message a user sees if they've used the wrong username or password when they sign in to E-Library.",
   },
 
   // Formatting
