@@ -277,7 +277,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
       "Indicates a task such as a sync is in progress. A lesson or class could also be in progress if the learner hasn't finished it yet.",
   },
   kolibriLabel: {
-    message: 'Kolibri',
+    message: 'E-Library',
     context:
       'This proper noun is the name of the learning platform, and is pronounced ko-lee-bree (/kolibɹi/). For languages with non-latin scripts, the word should be transcribed phonetically into the target language, similar to a person\'s name. It should not be translated as "hummingbird".',
   },

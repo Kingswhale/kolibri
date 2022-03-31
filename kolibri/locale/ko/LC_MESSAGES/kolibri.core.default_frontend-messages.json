@@ -156,7 +156,7 @@
   "CommonCoreStrings.inProgressLabel": "진행 중",
   "CommonCoreStrings.industryAndSectorSpecific": "업계 및 부문 고유",
   "CommonCoreStrings.invalidCredentialsError": "닉네임 혹은 비밀번호를 잘못 입력하셨습니다",
-  "CommonCoreStrings.kolibriLabel": "Kolibri",
+  "CommonCoreStrings.kolibriLabel": "E-Library",
   "CommonCoreStrings.labelColonThenDetails": "{label}: {details}",
   "CommonCoreStrings.languageLabel": "언어",
   "CommonCoreStrings.languageLearning": "언어 학습",

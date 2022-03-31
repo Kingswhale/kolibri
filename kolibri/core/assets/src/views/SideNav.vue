@@ -99,9 +99,9 @@
               size="large"
               @click="toggleNav"
             />
-            <span class="side-nav-header-name" :style="{ color: $themeTokens.textInverted }">{{
-              sideNavTitleText
-            }}</span>
+            <span class="side-nav-header-name" :style="{ color: $themeTokens.textInverted }">
+              E-Library
+            </span>
           </div>
         </FocusTrap>
       </div>
@@ -195,12 +195,12 @@ export default {
         this.filterByRole
       );
     },
-    sideNavTitleText() {
-      if (this.themeConfig.sideNav.title) {
-        return this.themeConfig.sideNav.title;
-      }
-      return this.coreString('kolibriLabel');
-    },
+    // sideNavTitleText() {
+    //   if (this.themeConfig.sideNav.title) {
+    //     return this.themeConfig.sideNav.title;
+    //   }
+    //   return this.coreString('kolibriLabel');
+    // },
   },
   watch: {
     navShown(isShown) {
