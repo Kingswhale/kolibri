@@ -35,4 +35,3 @@ If you have found a bug and are comfortable using Github and Markdown, you can c
 
 ## How can I contribute?
 
-Please see the 'contributing' section of our [developer documentation](http://kolibri-dev.readthedocs.io/).
